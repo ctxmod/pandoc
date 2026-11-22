@@ -22,7 +22,7 @@ Maintain a single `bibliography/refs.bib` file per paper. Use citeproc for bibli
 
 A single bibliography file prevents duplicate entries and conflicting citation keys across scattered `.bib` files. Citeproc processes citations independently of the LaTeX engine, producing consistent output whether the target format is PDF, HTML, or DOCX. CSL (Citation Style Language) files define formatting rules declaratively, allowing style changes by swapping a single file rather than reconfiguring LaTeX packages. This separation keeps bibliography management portable across pandoc output formats.
 
-- `citations/reference/citation_practice.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
+- `citation_practice/reference/citation_practice.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::references@core/reference/bibliography.md" />
 
 ## Workflow

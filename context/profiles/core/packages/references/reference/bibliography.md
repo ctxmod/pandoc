@@ -113,10 +113,10 @@ All managers should export complete metadata: author, title, year, venue, and DO
 | Encoding errors | Non-UTF8 characters in `.bib` | Save `.bib` as UTF-8, replace special characters with LaTeX escapes |
 | Duplicate entries | Multiple exports without deduplication | Use stable citation keys, deduplicate by DOI |
 
-- `citations/reference/citation_practice.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
+- `citation_practice/reference/citation_practice.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/pandoc_integration.md" />
 
 ## Related
 
-- `citations/reference/citation_practice.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
+- `citation_practice/reference/citation_practice.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::references@core/rules/bibliography.md" />
