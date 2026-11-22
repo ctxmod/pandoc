@@ -1,0 +1,11 @@
+title: Pandoc Styling
+description: >-
+  Tri-modal styling infrastructure for pandoc academic workflows:
+  format-specific templates, Lua filters, and cross-format consistency
+  procedures for PDF, DOCX, and HTML output from pandoc pipelines.
+  Extends core.
+extends:
+  - github.com/ctxmod/pandoc/context/profiles/core
+packages:
+  add:
+    - formats

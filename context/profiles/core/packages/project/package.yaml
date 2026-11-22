@@ -1,0 +1,5 @@
+description: >-
+  Pandoc project structure and build: modularity, pandoc integration
+  through native extension points, project setup, and the build
+  (Justfile recipes) and structure rules.
+binds_to_depth: main...

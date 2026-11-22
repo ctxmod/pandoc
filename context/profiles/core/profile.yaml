@@ -1,4 +1,13 @@
 title: Pandoc Core
 description: >-
-  Pandoc project structure and build, bibliographies and
-  cross-references, floats, and build validation.
+  Base profile for pandoc-first academic writing: Justfile builds,
+  modular content under content/papers/<paper-slug>/ (an opinionated
+  default layout), citeproc/CSL bibliographies, cross-references and
+  floats, and build-error and PDF-quality validation. Citation style
+  practice belongs to github.com/ctxmod/writing_academic/context; this
+  profile owns the pipeline.
+packages:
+  defaults:
+    - project
+    - references
+    - validation
