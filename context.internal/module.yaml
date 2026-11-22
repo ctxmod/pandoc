@@ -1,0 +1,8 @@
+title: Pandoc Publishing Internal
+description: >-
+  Development-only context for authoring and maintaining the
+  pandoc module itself.
+path: github.com/ctxmod/pandoc/context.internal
+private: true
+requires:
+  - github.com/ctxmod/writing_context/context

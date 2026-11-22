@@ -1,0 +1,14 @@
+title: Pandoc Publishing
+description: >-
+  Pandoc-first academic and technical publishing: modular Markdown
+  projects built through a Justfile, citeproc/CSL bibliographies,
+  cross-references and floats, build-error and PDF-quality validation
+  (core), and tri-format styling across PDF, DOCX and HTML with
+  semantic classes, template variables, Lua filters and a DOCX
+  reference document (styling).
+path: github.com/ctxmod/pandoc/context
+requires:
+  - github.com/ctxmod/writing/context
+  - github.com/ctxmod/writing_academic/context
+default_profiles:
+  - core
