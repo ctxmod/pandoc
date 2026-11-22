@@ -1,0 +1,4 @@
+description: >-
+  Bibliographies through citeproc and CSL, cross-references, and
+  float placement.
+binds_to_depth: main...
