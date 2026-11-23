@@ -23,8 +23,8 @@ latexmk -pdf -interaction=nonstopmode main.tex 2>&1 | tee build.log
 For pandoc pipelines, enable verbose output:
 
 ```bash
-pandoc main.md --citeproc --bibliography=bibliography/refs.bib \
-    --filter pandoc-crossref --verbose -o main.pdf 2>&1 | tee build.log
+pandoc main.md sections/*.md --filter pandoc-crossref --citeproc \
+    --bibliography=bibliography/refs.bib --verbose -o main.pdf 2>&1 | tee build.log
 ```
 
 ### 2. Classify the Error
@@ -40,6 +40,7 @@ Locate the error in `build.log` or the `.log` file. LaTeX errors follow the patt
 | Syntax error | `! Missing $ inserted` or `! Undefined control sequence` | Fatal | Unmatched delimiters or typo in command |
 | BibTeX/citeproc | `I found no \citation commands` | Warning | `--citeproc` flag missing or empty bibliography |
 | Pandoc filter | `Error running filter pandoc-crossref` | Fatal | Filter not installed or incompatible version |
+| Missing citation key | `[WARNING] Citeproc: citation key not found` | Warning | Key absent from `refs.bib` or misspelled |
 
 ### 3. Inspect the Log File
 
@@ -63,7 +64,7 @@ When the error source is unclear, use `\input{}` commenting to narrow the scope.
 \input{sections/04-discussion}
 ```
 
-For pandoc Markdown projects, apply the same technique by commenting out `\input` directives or removing section includes from the YAML file list.
+For pandoc Markdown projects, apply the same technique by dropping section files from the recipe's input list, or from the `input-files` list of a defaults file. To see the LaTeX pandoc generates before any engine runs, write it out with `pandoc ... -s -o main.tex` and compile that file directly; an error then points at a line you can read.
 
 ## Common Resolutions
 
@@ -94,3 +95,7 @@ Warnings accumulate. A document with unresolved reference warnings produces inco
 
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/pandoc_integration.md" />
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/rules/build.md" />
+
+## Sources
+
+- https://pandoc.org/MANUAL.html — filter and citeproc ordering, `input-files` in defaults files, `--verbose` (pandoc 3.14, 2026-11-10); accessed 2026-11-23.

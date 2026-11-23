@@ -30,4 +30,5 @@ Never a Makefile, and never manual `pdflatex` invocations that skip bibliography
 
 - KISS — `design/reference/kiss.md` in `github.com/ctxmod/engineering/context` (profile `principles`)
 - the required-recipe and optional styling-flag tables, the complete default and styling-extended Justfiles, rationale, and worked correct/incorrect examples — <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/project_setup.md" />
+- the pandoc and pandoc-crossref version facts the recipes rely on, and the PDF engine choices beside latexmk — <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/pandoc_versions.md" />
 - build-failure diagnosis for the latexmk and pandoc pipelines — <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::validation@core/reference/build_errors.md" />

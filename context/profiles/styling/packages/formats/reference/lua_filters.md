@@ -10,7 +10,7 @@ See also: [Pandoc Lua Filters documentation](https://pandoc.org/lua-filters.html
 
 ## Prerequisites
 
-- pandoc 3.x installed (Lua filter API requires 2.17+; 3.x recommended for modern idioms)
+- pandoc 3.x installed (Lua filters exist since 2.0; `traverse` and `pandoc.utils.type` since 2.17; the `Figure` element since 3.0). A filter that depends on a version states it with `PANDOC_VERSION:must_be_at_least '3.0'`
 - Text editor with Lua syntax highlighting
 - Sample Markdown file containing semantic class annotations (`{.highlight}`, `{.warning}`)
 
@@ -43,7 +43,9 @@ Two element types carry classes from Markdown source:
 | `::: {.warning}\ncontent\n:::` | `Div` | `function Div(el)` |
 | `[text]{.highlight}` | `Span` | `function Span(el)` |
 
-Additional handlers (`RawBlock`, `CodeBlock`, `Meta`, `Header`) serve specialized transformations such as raw format injection, code annotation, and metadata computation.
+Additional handlers (`RawBlock`, `CodeBlock`, `Meta`, `Header`, `Figure`) serve specialized transformations such as raw format injection, code annotation, and metadata computation.
+
+Since pandoc 3.0, a captioned image on its own line is a `Figure` block wrapping the image, not a paragraph holding one image. A filter written for pandoc 2 that matches `Para` with a single `Image` no longer sees figures; give it a `Figure` handler, and reach the caption through `el.caption` and the image through `el.content`.
 
 ### 3. Add Format-Conditional Logic
 
@@ -64,7 +66,7 @@ local function handle_inline_classes(el)
 end
 ```
 
-Guard on format at the function level rather than nesting conditionals deeply. When a format needs no transformation (HTML classes map directly to CSS selectors), return `nil` implicitly.
+Guard on format at the function level rather than nesting conditionals deeply. `FORMAT:match('latex')` does not match `beamer`, so a filter that should also style slides tests both. Typst output (`FORMAT == 'typst'`) needs its own branch emitting `pandoc.RawInline('typst', ...)` when a project builds Typst drafts. When a format needs no transformation (HTML classes map directly to CSS selectors), return `nil` implicitly.
 
 ### 4. Map Classes to Format-Specific Output
 
@@ -143,3 +145,8 @@ Apply multiple filters in sequence via repeated `--lua-filter` flags. Execution 
 ## Related
 
 - `filters/semantic-classes.lua` (a project asset)
+
+## Sources
+
+- https://pandoc.org/lua-filters.html — traversal order (`traverse`, since 2.17), the `Figure` element and constructor, `PANDOC_VERSION:must_be_at_least`, `pandoc.utils.type` (pandoc 3.14); accessed 2026-11-23.
+- https://github.com/jgm/pandoc/blob/main/changelog.md — pandoc 3.0 (2023-01-18) adds the `Figure` block through pandoc-types 1.23; accessed 2026-11-23.

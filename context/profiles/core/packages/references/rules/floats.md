@@ -13,7 +13,7 @@ paths:
 
 # Float Management
 
-Configure `\graphicspath{\{figures/}}` in the preamble, use booktabs for all tables, and apply pandoc-crossref for automated cross-references. Figures must use PNG or JPG formats for Word compatibility.
+Configure `\graphicspath{{figures/}}` in the preamble, use booktabs for all tables, and apply pandoc-crossref for automated cross-references. Figures must use PNG or JPG formats for Word compatibility.
 
 ## Rationale
 
@@ -65,7 +65,7 @@ Extract tables exceeding five rows or requiring advanced formatting to standalon
 
 ## Cross-References
 
-Use pandoc-crossref for all figure, table, and equation references. Label elements with `\{#fig:label}`, `\{#tbl:label}`, or `\{#eq:label}` syntax. Reference them in text with `@fig:label`, `@tbl:label`, or `@eq:label`.
+Use pandoc-crossref for all figure, table, and equation references. Label elements with `{#fig:label}`, `{#tbl:label}`, or `{#eq:label}` syntax. Reference them in text with `@fig:label`, `@tbl:label`, or `@eq:label`.
 
 Build with the crossref filter enabled:
 

@@ -68,7 +68,7 @@ Each subdirectory holds one content type:
 | `bibliography/` | Single bibliography source | `refs.bib` |
 | `artifacts/` | Research materials | Subdirectories: `summaries/`, `analysis/`, `findings/` |
 
-Number section files (`01-`, `02-`) to preserve ordering in file listings. Use descriptive slugs after the number so the filename communicates content without opening the file. Configure `\graphicspath{\{figures/}}` in the preamble so figure references omit the directory prefix.
+Number section files (`01-`, `02-`) to preserve ordering in file listings. Use descriptive slugs after the number so the filename communicates content without opening the file. Configure `\graphicspath{{figures/}}` in the preamble so figure references omit the directory prefix.
 
 ## Scalability Guidance
 
