@@ -21,18 +21,18 @@ Sections live as individual `.md` files in `sections/`. The root `main.md` orche
 
 ## Cross-References
 
-The pandoc-crossref filter generates numbered cross-references for figures, tables, equations, and sections. Labels use the syntax `\{#fig:label}`, `\{#tbl:label}`, `\{#eq:label}`, and `\{#sec:label}`. In-text references use `@fig:label`, `@tbl:label`, and so on.
+The pandoc-crossref filter generates numbered cross-references for figures, tables, equations, and sections. Labels use the syntax `{#fig:label}`, `{#tbl:label}`, `{#eq:label}`, and `{#sec:label}`. In-text references use `@fig:label`, `@tbl:label`, and so on.
 
 Configure crossref behavior in YAML frontmatter:
 
 ```yaml
-crossref:
-  chapters: false
-  figPrefix: ["Fig.", "Figs."]
-  tblPrefix: ["Table", "Tables"]
-  eqnPrefix: ["Eq.", "Eqs."]
-  secPrefix: ["Section", "Sections"]
-  linkReferences: true
+# pandoc-crossref reads its options as top-level metadata keys
+chapters: false
+figPrefix: ["Fig.", "Figs."]
+tblPrefix: ["Table", "Tables"]
+eqnPrefix: ["Eq.", "Eqs."]
+secPrefix: ["Section", "Sections"]
+linkReferences: true
 ```
 
 Build with the crossref filter before citeproc to ensure correct processing order:
@@ -72,6 +72,7 @@ Pandoc-first suits multi-format academic workflows where portability and collabo
 
 ## Related
 
+- <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/pandoc_versions.md" />
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/modularity.md" />
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::references@core/reference/cross_references.md" />
 - `composition/reference/imrad_structure.md` in `github.com/ctxmod/writing_academic/context` (profile `scholarly_prose`)
