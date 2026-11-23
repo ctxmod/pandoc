@@ -20,13 +20,14 @@ Unembedded fonts cause rendering failures on systems that lack the font. Verify 
 pdffonts output.pdf
 ```
 
-Every row in the output must show `yes` in the `emb` column. Type 3 bitmap fonts indicate a configuration problem -- these produce poor scaling and should be replaced with Type 1 or TrueType equivalents. If any font shows `no` for embedding, add the following to the latexmk configuration or preamble:
+Every row in the output must show `yes` in the `emb` column. pdfLaTeX, LuaLaTeX, and XeLaTeX embed the fonts they use by default, so an unembedded font usually enters through an included figure PDF; regenerate that figure with fonts embedded. Type 3 bitmap fonts indicate a configuration problem -- these produce poor scaling. Under pdfLaTeX they appear when T1 encoding is used without an outline font: load `lmodern` (pandoc's default LaTeX template loads it for pdfLaTeX) or another outline font package:
 
 ```latex
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 ```
 
-For pandoc pipelines, pass `--pdf-engine-opt=-dEmbedAllFonts=true` or configure the font encoding in the YAML metadata block.
+Under LuaLaTeX or XeLaTeX, set OpenType fonts through the `mainfont`, `sansfont`, and `monofont` metadata variables. `-dEmbedAllFonts` is a Ghostscript option and has no effect on a LaTeX engine.
 
 ### Document Metadata
 
@@ -55,12 +56,24 @@ Automated tools cannot catch layout and formatting problems. Open the PDF and ve
 - [ ] **Cross-references**: All `@fig:`, `@tbl:`, `@eq:`, and `@sec:` labels resolve to numbered references, not raw label text
 - [ ] **Hyperlinks**: Internal cross-reference links navigate to the correct figure, table, or section when clicked
 - [ ] **Bibliography**: All citations render in the specified CSL style with consistent formatting
-- [ ] **Missing citations**: No `[?]` markers or `???` placeholders appear in the text
+- [ ] **Missing citations**: No citation key followed by `?` (citeproc's marker for a key absent from the bibliography, reported as `[WARNING] Citeproc: citation <key> not found`) and no bold `¿fig:label?` cross-reference markers appear in the text
 - [ ] **Figure placement**: Figures appear near their first reference, captions are present and numbered
 - [ ] **Table formatting**: Booktabs rules render correctly, no vertical lines, column alignment is consistent
 - [ ] **Margins**: Content respects the document class margin requirements with no overflow into gutters
 - [ ] **Orphans and widows**: No single lines stranded at the top or bottom of a page
 - [ ] **Page numbers**: Sequential, starting from the correct page, matching the header/footer style
+
+## Accessible PDF
+
+A PDF is accessible only when it is tagged: tags carry the reading order, headings, lists, table structure, and image alternative text that a screen reader needs. Since pandoc 3.9, the `pdfstandard` variable requests a standard through LaTeX's `\DocumentMetadata` interface, adding tagging where the standard requires it:
+
+```yaml
+pdfstandard:
+  - ua-2
+  - a-4f
+```
+
+This needs LuaLaTeX from TeX Live 2025 with a LaTeX kernel of 2025-06-01 or newer (`--pdf-engine=lualatex`). Give every figure alternative text that differs from its caption where the caption does not describe the image: `![Caption.](figures/fig-x.png){#fig:x alt="What the image shows"}`. Pandoc cannot verify conformance, so check the result with a PDF/UA validator such as veraPDF before claiming it.
 
 ## DOCX Comparison
 
@@ -80,9 +93,9 @@ Structural divergence between PDF and DOCX indicates format-specific LaTeX const
 
 **Unembedded fonts**: Switch to a font package that supports embedding (e.g., `lmodern`, `libertinus`). Verify with `pdffonts` after rebuilding.
 
-**Broken cross-references**: Rebuild twice to resolve forward references. If labels still appear as raw text, verify pandoc-crossref filter is in the build pipeline and label syntax matches `\{#fig:label}` format exactly.
+**Broken cross-references**: Rebuild twice to resolve forward references. If labels still appear as raw text, verify pandoc-crossref filter is in the build pipeline and label syntax matches `{#fig:label}` format exactly.
 
-**Missing bibliography entries**: Run `just clean` followed by a fresh build. Stale auxiliary files sometimes cache outdated citation data. Verify the cited key exists in `bibliography/refs.bib`.
+**Missing bibliography entries**: Verify the cited key exists in `bibliography/refs.bib`, including case, and read the build log for citeproc's `citation <key> not found` warning. citeproc resolves citations on every pandoc run, so stale auxiliary files matter only for raw BibTeX or biblatex builds; for those, run `just clean` followed by a fresh build.
 
 the academic quality-assurance validation procedure (agentic module, `workflows` profile, `validation` package)
 
@@ -94,3 +107,9 @@ the academic quality-assurance validation procedure (agentic module, `workflows`
 - the academic quality-assurance validation procedure (agentic module, `workflows` profile, `validation` package)
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::validation@core/reference/build_errors.md" />
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/pandoc_integration.md" />
+
+## Sources
+
+- https://pandoc.org/MANUAL.html — sections "Accessible PDFs and PDF archiving standards" (`pdfstandard`, LuaLaTeX and kernel requirements), `implicit_figures` (the `alt` attribute), and the default LaTeX font setup (pandoc 3.14, 2026-11-10); accessed 2026-11-23.
+- https://github.com/jgm/pandoc/blob/main/changelog.md — pandoc 3.9 (2026-02-03) added the `pdfstandard` variable; accessed 2026-11-23.
+- https://github.com/jgm/citeproc — the `citation <key> not found` warning and the `key?` placeholder citeproc renders for a missing entry; accessed 2026-11-23.
