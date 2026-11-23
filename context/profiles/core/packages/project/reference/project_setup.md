@@ -38,13 +38,13 @@ csl: acm-sig-proceedings.csl
 header-includes:
   - \usepackage{booktabs}
   - \graphicspath{{figures/}}
-crossref:
-  chapters: false
-  figPrefix: ["Fig.", "Figs."]
-  tblPrefix: ["Table", "Tables"]
-  eqnPrefix: ["Eq.", "Eqs."]
-  secPrefix: ["Section", "Sections"]
-  linkReferences: true
+# pandoc-crossref reads its options as top-level metadata keys
+chapters: false
+figPrefix: ["Fig.", "Figs."]
+tblPrefix: ["Table", "Tables"]
+eqnPrefix: ["Eq.", "Eqs."]
+secPrefix: ["Section", "Sections"]
+linkReferences: true
 ---
 ```
 
@@ -74,22 +74,34 @@ Add a `justfile` at the paper root with required recipes:
 default_target := "main"
 
 pdf target=default_target:
+    pandoc {{target}}.md sections/*.md \
+        --standalone \
+        --filter pandoc-crossref \
+        --citeproc \
+        --bibliography=bibliography/refs.bib \
+        -o {{target}}.tex
     latexmk -pdf -interaction=nonstopmode -halt-on-error {{target}}.tex
 
 watch target=default_target:
     latexmk -pdf -pvc -interaction=nonstopmode {{target}}.tex
 
 docx target=default_target:
-    pandoc {{target}}.md \
+    pandoc {{target}}.md sections/*.md \
+        --filter pandoc-crossref \
         --citeproc \
         --bibliography=bibliography/refs.bib \
-        --filter pandoc-crossref \
         -o {{target}}.docx
 
 clean:
     latexmk -C
     rm -f *.bbl *.run.xml *.nav *.snm *.vrb
 ```
+
+Three details in these recipes carry the pipeline:
+
+- **Section files are inputs.** Pandoc Markdown has no include directive, so the root document cannot pull in `sections/` by itself. The recipes pass `{{target}}.md sections/*.md`; pandoc concatenates the files in order, and the numeric prefixes (`01-`, `02-`) fix that order. A short document without `sections/` drops the glob.
+- **The PDF goes through LaTeX source.** The `pdf` recipe has pandoc write a standalone `{{target}}.tex` with citations and cross-references resolved, then latexmk compiles it with as many passes as the auxiliary files need. `pandoc --pdf-engine=latexmk -o {{target}}.pdf` is the one-command equivalent. `watch` recompiles when the generated `.tex` changes; after editing Markdown, run `just pdf` again or drive it from a file watcher.
+- **pandoc-crossref runs before citeproc.** Pandoc applies `--filter`, `--lua-filter`, and `--citeproc` in command-line order, and both use the `@label` syntax, so `--filter pandoc-crossref` must precede `--citeproc` in every recipe.
 
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/reference/pandoc_integration.md" />
 
@@ -111,6 +123,7 @@ Create `.gitignore` with entries for LaTeX auxiliary files:
 *.fdb_latexmk
 *.fls
 *.synctex.gz
+main.tex
 ```
 
 Initialize the repository and commit the project skeleton.
@@ -129,7 +142,7 @@ Confirm that the PDF or DOCX renders without errors, the test citation resolves,
 
 **pandoc-crossref filter not found**: Install via `brew install pandoc-crossref` (macOS), `cabal install pandoc-crossref` (Haskell), or download a prebuilt binary from the GitHub releases page. Verify the filter version matches the installed pandoc version.
 
-**Bibliography not found**: Check that the `bibliography` path in YAML frontmatter is relative to the document location, not the build directory. Use `bibliography: bibliography/refs.bib` when `refs.bib` sits inside a `bibliography/` subdirectory.
+**Bibliography not found**: Pandoc resolves the `bibliography` path relative to the working directory of the pandoc process, then searches the `--resource-path`; it does not resolve it relative to the document's own location. Run the build from the paper root, where the Justfile sits, and use `bibliography: bibliography/refs.bib`.
 
 **graphicspath has no effect in pandoc**: The `\graphicspath` directive applies only during LaTeX compilation. For pandoc Markdown images, use relative paths from the document root (e.g., `![Caption](figures/fig-overview.png)`).
 
@@ -170,28 +183,34 @@ The default Justfile works without any styling infrastructure. Add optional flag
 # Default target
 default_target := "main"
 
-# Build PDF using latexmk
+# Write LaTeX with pandoc, then compile the PDF with latexmk
 pdf target=default_target:
+    pandoc {{target}}.md sections/*.md \
+        --standalone \
+        --filter pandoc-crossref \
+        --citeproc \
+        --bibliography=bibliography/refs.bib \
+        -o {{target}}.tex
     latexmk -pdf -interaction=nonstopmode -halt-on-error {{target}}.tex
 
-# Watch for changes and rebuild
+# Recompile the generated LaTeX whenever it changes
 watch target=default_target:
     latexmk -pdf -pvc -interaction=nonstopmode {{target}}.tex
 
-# Convert to DOCX using pandoc with citeproc and crossref
+# Convert to DOCX using pandoc with crossref, then citeproc
 docx target=default_target:
-    pandoc {{target}}.md \
+    pandoc {{target}}.md sections/*.md \
+        --filter pandoc-crossref \
         --citeproc \
         --bibliography=bibliography/refs.bib \
-        --filter pandoc-crossref \
         -o {{target}}.docx
 
-# Convert to standalone HTML using pandoc with citeproc and crossref
+# Convert to standalone HTML using pandoc with crossref, then citeproc
 html target=default_target:
-    pandoc {{target}}.md \
+    pandoc {{target}}.md sections/*.md \
+        --filter pandoc-crossref \
         --citeproc \
         --bibliography=bibliography/refs.bib \
-        --filter pandoc-crossref \
         --embed-resources \
         --standalone \
         -o {{target}}.html
@@ -210,42 +229,50 @@ Projects using the pandoc-styling sub-profile extend the default recipes with te
 # Default target
 default_target := "main"
 
-# Build PDF with custom template and semantic class filter
+# Write LaTeX with the custom template and semantic class filter, then compile with latexmk
 pdf target=default_target:
+    pandoc {{target}}.md sections/*.md \
+        --standalone \
+        --filter pandoc-crossref \
+        --citeproc \
+        --bibliography=bibliography/refs.bib \
+        --template=custom-pdf.tex \
+        --lua-filter=filters/semantic-classes.lua \
+        -o {{target}}.tex
     latexmk -pdf -interaction=nonstopmode -halt-on-error {{target}}.tex
 
-# Watch for changes and rebuild
+# Recompile the generated LaTeX whenever it changes
 watch target=default_target:
     latexmk -pdf -pvc -interaction=nonstopmode {{target}}.tex
 
 # Convert to DOCX with reference document and semantic class filter
 docx target=default_target:
-    pandoc {{target}}.md \
+    pandoc {{target}}.md sections/*.md \
+        --filter pandoc-crossref \
         --citeproc \
         --bibliography=bibliography/refs.bib \
-        --filter pandoc-crossref \
         --reference-doc=templates/reference.docx \
         --lua-filter=filters/semantic-classes.lua \
         -o {{target}}.docx
 
 # Convert to standalone HTML with CSS and semantic class filter
 html target=default_target:
-    pandoc {{target}}.md \
+    pandoc {{target}}.md sections/*.md \
+        --filter pandoc-crossref \
         --citeproc \
         --bibliography=bibliography/refs.bib \
-        --filter pandoc-crossref \
         --css=templates/default.css \
         --embed-resources \
         --standalone \
         --lua-filter=filters/semantic-classes.lua \
         -o {{target}}.html
 
-# Build PDF from Markdown via pandoc with custom template
+# Build PDF from Markdown in one pandoc call with the custom template
 pdf-pandoc target=default_target:
-    pandoc {{target}}.md \
+    pandoc {{target}}.md sections/*.md \
+        --filter pandoc-crossref \
         --citeproc \
         --bibliography=bibliography/refs.bib \
-        --filter pandoc-crossref \
         --pdf-engine=pdflatex \
         --template=custom-pdf.tex \
         --lua-filter=filters/semantic-classes.lua \
@@ -256,6 +283,29 @@ clean:
     latexmk -C
     rm -f *.bbl *.run.xml *.nav *.snm *.vrb
 ```
+
+### Shared Options in a Defaults File
+
+When the recipes repeat the same inputs and flags, a pandoc defaults file can hold them once, and each recipe passes it with `-d`. The Justfile stays the single entry point; the defaults file only removes repetition:
+
+```yaml
+# defaults/common.yaml
+input-files:
+  - main.md
+  - sections/01-introduction.md
+  - sections/02-related-work.md
+filters:
+  - pandoc-crossref
+  - citeproc
+bibliography: bibliography/refs.bib
+```
+
+```just
+docx:
+    pandoc -d defaults/common.yaml -o main.docx
+```
+
+The `filters` list runs in order, and `citeproc` in it stands for `--citeproc`, so crossref-before-citeproc is written once. Listing `input-files` explicitly also makes temporarily dropping a section a one-line edit.
 
 ### Examples
 
@@ -279,3 +329,8 @@ None. All pandoc projects require automated builds through a Justfile. The speci
 
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/rules/structure.md" />
 - <ctxmod_link path="ctx:github.com/ctxmod/pandoc/context::shared::project@core/rules/build.md" />
+
+## Sources
+
+- https://pandoc.org/MANUAL.html — multiple input files are concatenated; `--pdf-engine` values including `latexmk`; filters, Lua filters, and citeproc run in command-line order; defaults files (`input-files`, `filters` with `citeproc`, `bibliography`); `--resource-path` (pandoc 3.14, 2026-11-10); accessed 2026-11-23.
+- https://lierdakil.github.io/pandoc-crossref/ — pandoc-crossref options as top-level metadata keys and the requirement to run it before citeproc; accessed 2026-11-23.
